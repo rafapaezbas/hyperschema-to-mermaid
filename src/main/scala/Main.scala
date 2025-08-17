@@ -27,7 +27,8 @@ object Main {
 
   def primitiveToString(field: Field): String = {
     val arraySuffix = if (field.array.getOrElse(false)) "[]" else ""
-    s"\n\t${field.`type`}$arraySuffix ${field.name}"
+    val required = if (field.required.getOrElse(false)) "\"Required\"" else ""
+    s"\n\t${field.`type`}$arraySuffix ${field.name} $required"
   }
 
   def relationNotation(struct: Struct, field: Field): String = {
