@@ -27,7 +27,7 @@ object Main {
 
   def primitiveToString(field: Field): String = {
     val arraySuffix = if (field.array.getOrElse(false)) "[]" else ""
-    val required = if (field.require.getOrElse(false)) "\"Required\"" else ""
+    val required = if (field.required.getOrElse(false)) "\"Required\"" else ""
     s"\n\t${field.`type`}$arraySuffix ${field.name} $required"
   }
 
