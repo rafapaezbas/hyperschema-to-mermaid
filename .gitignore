@@ -1,0 +1,41 @@
+# sbt build
+/target/
+/project/target/
+/project/project/
+/.idea/
+/.ensime_cache/
+/.metals/
+/bloop/
+/out/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# IntelliJ
+*.iml
+.idea/
+
+# Metals (Scala language server)
+.metals/
+.bloop/
+
+# Ensime (older Scala IDE)
+.ensime
+.ensime_cache/
+
+# Mill build tool (if you switch sometimes)
+.mill/
+
+# Coursier (dependency cache)
+.coursier/
+
+# Scala worksheets
+*.worksheet.sc
+
