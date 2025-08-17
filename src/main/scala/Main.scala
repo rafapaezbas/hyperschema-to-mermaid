@@ -18,23 +18,19 @@ object Main {
     }
 
     content match {
-      case scala.util.Success(text) => println(convertToMermaid(text))
-      case scala.util.Failure(err)  => println(s"Error: $err")
+      case scala.util.Success(json)      => println(schemaToMermaid(json))
+      case scala.util.Failure(exception) => println(s"Error: $exception")
     }
   }
 
-  def fieldIsPrimitive(field: Field): Boolean = {
-    !field.`type`.startsWith("@")
-  }
+  def isPrimitive(field: Field): Boolean = !field.`type`.startsWith("@")
 
   def primitiveToString(field: Field): String = {
-    if (!field.array.getOrElse(false))
-      "\n\t" + field.`type` + " " + field.name
-    else
-      "\n\t" + field.`type` + "[] " + field.name
+    val arraySuffix = if (field.array.getOrElse(false)) "[]" else ""
+    s"\n\t${field.`type`}$arraySuffix ${field.name}"
   }
 
-  def relationToNotation(struct: Struct, field: Field): String = {
+  def relationNotation(struct: Struct, field: Field): String = {
     field.array match {
       case Some(b) =>
         if (b)
@@ -46,26 +42,22 @@ object Main {
     }
   }
 
-  def structFieldsToMermaidNotation(struct: Struct): String = {
-    s"""${struct.fields.filter(fieldIsPrimitive).map(primitiveToString).mkString}"""
-  }
+  def fieldsToMermaid(struct: Struct): String =
+    struct.fields.filter(isPrimitive).map(primitiveToString).mkString
 
-  def structToMermaidNotation(struct: Option[Struct]): String = struct match {
+  def structToMermaid(struct: Option[Struct]): String = struct match {
     case Some(e: Struct) =>
-      val definitions: String = s"""\n${e.name.toUpperCase()} { ${structFieldsToMermaidNotation(e)}\n}\n\n"""
+      val definitions: String = s"""\n${e.name.toUpperCase()} { ${fieldsToMermaid(e)}\n}\n\n"""
       val relations: String =
-        s"""${e.fields.filterNot(fieldIsPrimitive).map(ee => relationToNotation(e, ee)).mkString}"""
+        s"""${e.fields.filterNot(isPrimitive).map(ee => relationNotation(e, ee)).mkString}"""
       definitions + relations
     case _ => ""
   }
 
-  def convertToMermaid(jsonString: String): String = {
-    val result = decode[Schema](jsonString)
-    result match {
-      case Right(schema) =>
-        s"""erDiagram\n${schema.schema.map(structToMermaidNotation).mkString}"""
-      case Left(error) =>
-        s"Failed to decode: $error"
+  def schemaToMermaid(json: String): String = {
+    decode[Schema](json) match {
+      case Right(schema) => s"erDiagram\n${schema.schema.map(structToMermaid).mkString}"
+      case Left(error)   => s"Failed to decode: $error"
     }
   }
 }
